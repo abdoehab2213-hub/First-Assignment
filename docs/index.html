@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Search Ranking & Discoverability — Research Paper</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 900px; margin: 0 auto; padding: 2rem; }
+        h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        h1 { font-size: 2em; }
+        h2 { margin-top: 1.5em; }
+        code, pre { background-color: #f6f8fa; border-radius: 3px; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; padding: 0.2em 0.4em; font-size: 85%; }
+        pre { padding: 1em; overflow: auto; line-height: 1.45; }
+        blockquote { padding: 0 1em; color: #6a737d; border-left: 0.25em solid #dfe2e5; margin: 0; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        th, td { border: 1px solid #dfe2e5; padding: 6px 13px; text-align: left; }
+        th { background-color: #f6f8fa; font-weight: 600; }
+        tr:nth-child(2n) { background-color: #f8f9fa; }
+        .metric-box { background: #f1f8ff; border: 1px solid #c8e1ff; border-radius: 6px; padding: 1rem; margin: 1rem 0; }
+        footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eaecef; font-size: 0.85em; color: #586069; }
+    </style>
+</head>
+<body>
+
+    <h1>Google Search Ranking & Discoverability Capstone</h1>
+    <p><strong>Author:</strong> Abdelrhman Ehab | <strong>Track:</strong> Machine Learning & Search Intelligence</p>
+    <hr>
+
+    <h2>1. Title & Abstract</h2>
+    <p><strong>Title:</strong> Automated Search Traffic Decay Detection & Action Prioritization Engine</p>
+    <p><strong>Abstract:</strong> Maintaining organic search visibility at scale requires continuous identification of underperforming pages. This research presents a machine learning framework designed to predict traffic decay across high-impression web pages using historical search performance metrics. By deploying a Random Forest classifier trained on 90-day search performance data, our model achieves an <strong>ROC-AUC of 0.6772</strong>, significantly outperforming rule-based heuristics (ROC-AUC 0.5198). The model automates triage decisions into actionable categories: <code>CONTENT_REFRESH</code>, <code>SNIPPET_FIX</code>, and <code>CONTENT_REVIEW</code>.</p>
+
+    <h2>2. Problem Statement & Decision Context</h2>
+    <p>Organic search decay leads to significant loss of digital traffic and revenue. Manual audit of thousands of URLs is unscalable and inefficient. This project builds an automated decision-support pipeline that evaluates page-level search performance to direct content and SEO teams toward high-ROI optimization tasks.</p>
+
+    <h2>3. Data & Privacy Framework</h2>
+    <ul>
+        <li><strong>Dataset Source:</strong> FlyRank Search Intelligence Anonymized Dataset (30,000 raw URL records).</li>
+        <li><strong>Window & Scope:</strong> 90-day aggregation window for impression and click metrics.</li>
+        <li><strong>Public Safety & Privacy:</strong> All URLs and personal domain identifiers are fully anonymized via secure <code>url_hash</code> cryptographic identifiers.</li>
+        <li><strong>Noise Exclusion:</strong> Filtered out low-visibility pages (< 500 impressions over 90 days), retaining 16,726 high-visibility pages for robust modeling.</li>
+    </ul>
+
+    <h2>4. Methodology & Leakage Guardrails</h2>
+    <p>We engineered key interaction ratios using strictly historical, pre-decision metrics:</p>
+    <ul>
+        <li><code>ctr_pos_ratio</code>: Measures click efficiency relative to rank position.</li>
+        <li><code>staleness_years</code>: Normalizes content age from days to annual scale.</li>
+        <li><code>traffic_density</code>: Captures conversion density per impression.</li>
+    </ul>
+    <p><strong>Leakage Audit:</strong> Zero target-derived features or future analytical windows were included in the training feature matrix.</p>
+
+    <h2>5. Empirical Results & Performance Comparison</h2>
+    <div class="metric-box">
+        <h3>Model vs. Baseline Summary (Test Set = 3,346 rows)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Model Approach</th>
+                    <th>ROC-AUC Score</th>
+                    <th>Recall (Declining Class)</th>
+                    <th>F1-Score (Declining)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Random Forest Classifier</strong></td>
+                    <td><strong>0.6772</strong></td>
+                    <td><strong>0.86</strong></td>
+                    <td><strong>0.74</strong></td>
+                </tr>
+                <tr>
+                    <td>Rule-Based Baseline</td>
+                    <td>0.5198</td>
+                    <td>0.24</td>
+                    <td>0.38</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>6. Limitations & Honest Analytical Framing</h2>
+    <ul>
+        <li><strong>Observational Nature:</strong> Predictions provide directional prioritization and do not establish direct causal reverse-engineering of search ranking algorithms.</li>
+        <li><strong>Unobserved Variables:</strong> Search query seasonality, major search engine core algorithm updates, and external competitor optimizations are outside the dataset scope.</li>
+        <li><strong>Human-in-the-Loop:</strong> Action labels serve as prioritization prompts requiring manual editorial review prior to content modifications.</li>
+    </ul>
+
+    <h2>7. Ranked Action Playbook Output</h2>
+    <p>Using the composite Capstone Score ($Probability \times Impressions$), we evaluated 16,726 pages and generated <strong>13,123 prioritized recommendations</strong>:</p>
+    <ul>
+        <li><code>CONTENT_REVIEW</code>: 12,536 pages (General high decay risk)</li>
+        <li><code>SNIPPET_FIX</code>: 571 pages (Page 1 ranking with sub-2% CTR)</li>
+        <li><code>CONTENT_REFRESH</code>: 16 pages (High decay risk with age ≥ 180 days)</li>
+        <li><code>MONITOR</code>: 3,603 pages (Stable performance)</li>
+    </ul>
+
+    <h2>8. Reproducibility & Repository Links</h2>
+    <p>All source code, data preprocessing scripts, and training pipelines are open-source and reproducible:</p>
+    <ul>
+        <li><strong>GitHub Repository:</strong> <a href="https://github.com/abdoehab2213-hub/First-Assignment" target="_blank">abdoehab2213-hub/First-Assignment</a></li>
+        <li><strong>Output Recommendations CSV:</strong> <code>work/outputs/capstone_ranked_recommendations.csv</code></li>
+    </ul>
+
+    <h2>9. Acknowledgments & Data Credit</h2>
+    <p>Built on the FlyRank Machine Learning Internship dataset. Special thanks to <a href="https://flyrank.ai" target="_blank">FlyRank.ai</a> for providing the search intelligence dataset and experimental framework.</p>
+
+    <footer>
+        <p>© 2026 Abdelrhman Ehab — Deployed via GitHub Pages.</p>
+    </footer>
+
+</body>
+</html>
